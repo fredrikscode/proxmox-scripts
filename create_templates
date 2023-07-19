@@ -3,7 +3,23 @@
 export ssh_keyfile=/tmp/keys_internal_servers
 export username=admin
 
+function check_exists() {
+    echo "Checking if $1 exists.."
+    if [[ $(qm status $1 2>/dev/null) ]]; then
+        echo "VMID already exists. Proceeding to delete.."
+        if [[ $(qm destroy $1) ]]; then
+                echo "OK"
+        else
+                exit 1
+        fi
+    else
+        exit 0
+    fi
+}
+
 function create_template() {
+
+    check_exists "$1"
 
     echo "Creating template $2 ($1)"
     qm create $1 --name $2 --ostype l26 
