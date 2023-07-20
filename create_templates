@@ -8,12 +8,12 @@ function check_exists() {
     if [[ $(qm status $1 2>/dev/null) ]]; then
         echo "VMID already exists. Proceeding to delete.."
         if [[ $(qm destroy $1) ]]; then
-                echo "OK"
+                return 0
         else
-                exit 1
+                return 1
         fi
     else
-        exit 0
+        return 0
     fi
 }
 
@@ -22,10 +22,10 @@ function create_template() {
     check_exists "$1"
 
     echo "Creating template $2 ($1)"
-    qm create $1 --name $2 --ostype l26 
-    qm set $1 --net0 virtio,bridge=vmbr0 
-    qm set $1 --serial0 socket --vga serial0 
-    qm set $1 --memory 2048 --cores 2 --cpu host 
+    qm create $1 --name $2 --ostype l26
+    qm set $1 --net0 virtio,bridge=vmbr0
+    qm set $1 --serial0 socket --vga serial0
+    qm set $1 --memory 2048 --cores 2 --cpu host
     qm set $1 --scsi0 ${template_storage}:0,import-from="$(pwd)/$3",discard=on
     qm set $1 --boot order=scsi0 --scsihw virtio-scsi-single
     qm set $1 --agent enabled=1,fstrim_cloned_disks=1
