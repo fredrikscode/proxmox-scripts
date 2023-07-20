@@ -48,8 +48,6 @@ elif [[ $HOSTNAME == "nano" ]]; then
     export template_vmids=("1000" "1001")
 fi
 
-check_exists "$1"
-
 declare -A disk_images
 disk_images["alma9.2"]="${template_vmids[0]}|https://repo.almalinux.org/almalinux/9.2/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
 
@@ -61,7 +59,7 @@ do
     IFS="|" read -ra values <<< "$value"
     vmid="${values[0]}"
     url="${values[1]}"
-
+    check_exists "$vmid"
     echo "Downloading disk image.. "
     wget -q --show-progress $url
     create_template $vmid $name $(basename -- $url)
