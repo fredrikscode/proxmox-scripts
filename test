@@ -3,7 +3,7 @@
 # Variables
 ISO_URL="https://repo.almalinux.org/almalinux/9.2/isos/x86_64/AlmaLinux-9.2-x86_64-minimal.iso"
 ISO_NAME="AlmaLinux-9.2-x86_64-minimal.iso"
-DATASTORE="local-lvm" # Adjust this to your datastore name in Proxmox
+DATASTORE="vm-storage" # Adjust this to your datastore name in Proxmox
 VM_ID=666 # Adjust this to an unused VM ID
 
 # Download the ISO
