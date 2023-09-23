@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Variables
+ISO_URL="https://repo.almalinux.org/almalinux/9.2/isos/x86_64/AlmaLinux-9.2-x86_64-minimal.iso"
+ISO_NAME="AlmaLinux-9.2-x86_64-minimal.iso"
+DATASTORE="local-lvm" # Adjust this to your datastore name in Proxmox
+VM_ID=666 # Adjust this to an unused VM ID
+
+# Download the ISO
+wget $ISO_URL
+
+# Upload the ISO to Proxmox
+pvesm alloc $DATASTORE $VM_ID $ISO_NAME $(du -b $ISO_NAME | cut -f1)
+pvesm upload $DATASTORE iso $ISO_NAME
+
+# Remove the downloaded ISO
+rm -f $ISO_NAME
+
+# Create a VM using the ISO
+qm create $VM_ID --name "AlmaLinux-Template" --memory 2048 --net0 virtio,bridge=vmbr0 --cdrom $DATASTORE:iso/$ISO_NAME
+
+# Start VM and install AlmaLinux (this step might require manual intervention)
+echo "Starting VM to proceed with AlmaLinux installation. Please manually go through the installation process."
+qm start $VM_ID
