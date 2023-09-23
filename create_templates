@@ -49,7 +49,8 @@ elif [[ $HOSTNAME == "nano" ]]; then
 fi
 
 declare -A disk_images
-disk_images["alma9.2"]="${template_vmids[0]}|https://repo.almalinux.org/almalinux/9.2/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
+#disk_images["alma9.2"]="${template_vmids[0]}|https://repo.almalinux.org/almalinux/9.2/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
+disk_images["alma9min"]="${template_vmids[0]}|https://repo.almalinux.org/almalinux/9.2/isos/x86_64/AlmaLinux-9.2-x86_64-minimal.iso"
 
 wget -q --show-progress https://raw.githubusercontent.com/fredrikscode/ssh-keys/main/internal_servers -O $ssh_keyfile
 
