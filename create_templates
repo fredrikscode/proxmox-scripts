@@ -3,7 +3,7 @@
 export ssh_keyfile=/tmp/keys_internal_servers
 export username=admin
 
-function check_exists() {
+function vm_exists() {
     echo "Checking if $1 exists.."
     if [[ $(qm status $1 2>/dev/null) ]]; then
         echo "VMID already exists. Proceeding to delete.."
@@ -37,7 +37,7 @@ function create_template() {
 
 }
 
-if [[ $HOSTNAME == "titan" ]]; then
+if [[ $HOSTNAME == "titan.freddan.io" ]]; then
     export template_storage=vm-storage
     export template_vmids=("3000" "3001")
 elif [[ $HOSTNAME == "hive" ]]; then
@@ -49,8 +49,8 @@ elif [[ $HOSTNAME == "nano" ]]; then
 fi
 
 declare -A disk_images
-#disk_images["alma9.2"]="${template_vmids[0]}|https://repo.almalinux.org/almalinux/9.2/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
-disk_images["alma9min"]="${template_vmids[0]}|https://repo.almalinux.org/almalinux/9.2/isos/x86_64/AlmaLinux-9.2-x86_64-minimal.iso"
+disk_images["alma9.2"]="${template_vmids[0]}|https://repo.almalinux.org/almalinux/9.2/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
+disk_images["ubuntu20.04"]="${template_vmids[0]}|https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-arm64.img"
 
 wget -q --show-progress https://raw.githubusercontent.com/fredrikscode/ssh-keys/main/internal_servers -O $ssh_keyfile
 
@@ -60,9 +60,13 @@ do
     IFS="|" read -ra values <<< "$value"
     vmid="${values[0]}"
     url="${values[1]}"
-    check_exists "$vmid"
-    echo "Downloading disk image.. "
-    wget -q --show-progress $url
+    vm_exists "$vmid"
+    if [ ! -f "$(basename -- $url)" ]; then
+        echo "Downloading disk image.. "
+        wget -q --show-progress $url
+    else
+        echo "Disk image exists"
+    fi
     create_template $vmid $name $(basename -- $url)
 done
 
