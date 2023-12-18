@@ -20,13 +20,14 @@ def vm_exists(vmid):
 def customize_image(temp_dir, image_name):
     try:
         subprocess.check_call(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"])
+        subprocess.check_call(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"])
     except Exception as e:
         print("ERROR:", e)
 
 def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username):
     commands = [
         ["qm", "create", vmid, "--name", name, "--ostype", "l26"],
-        ["qm", "set", vmid, "--net0", "virtio,bridge=vmbr0"],
+        ["qm", "set", vmid, "--net0", "virtio,bridge=vmbr0,tag=10"],
         ["qm", "set", vmid, "--serial0", "socket", "--vga", "serial0"],
         ["qm", "set", vmid, "--memory", "2048", "--cores", "2", "--cpu", "host"],
         ["qm", "set", vmid, "--scsi0", f"{template_storage}:0,import-from={temp_dir}/{image_name},discard=on,ssd=1,iothread=1,cache=writeback"],
@@ -56,7 +57,7 @@ def download_file(url, temp_dir, filename):
 def main():
     temp_dir = "/tmp"
     ssh_keyfile = "/tmp/keys_internal_servers"
-    username = "admin"
+    username = "fredrik"
     hostname = socket.gethostname()
 
     config_mapping = {
@@ -89,9 +90,9 @@ def main():
             else:
                 print("[v] Disk image exists")
 
-            # if "ubuntu" in name or "debian" in name:
-            #     print(f"[i] Customizing disk image for {name}..")
-            #     customize_image(temp_dir, image_name)
+            if "ubuntu" in name or "debian" in name:
+                print(f"[i] Customizing disk image for {name}..")
+                customize_image(temp_dir, image_name)
 
             print(f"[i] Creating template {name} ({vmid})")
             create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username)
