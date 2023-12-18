@@ -56,7 +56,7 @@ def download_file(url, temp_dir, filename):
 def main():
     temp_dir = "/tmp"
     ssh_keyfile = "/tmp/keys_internal_servers"
-    username = "admin"
+    username = "fredrik"
     hostname = socket.gethostname()
 
     config_mapping = {
