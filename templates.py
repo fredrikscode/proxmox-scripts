@@ -89,9 +89,9 @@ def main():
             else:
                 print("[v] Disk image exists")
 
-            # if "ubuntu" in name or "debian" in name:
-            #     print(f"[i] Customizing disk image for {name}..")
-            #     customize_image(temp_dir, image_name)
+            if "ubuntu" in name or "debian" in name:
+                print(f"[i] Customizing disk image for {name}..")
+                customize_image(temp_dir, image_name)
 
             print(f"[i] Creating template {name} ({vmid})")
             create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username)
