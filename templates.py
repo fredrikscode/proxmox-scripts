@@ -20,6 +20,7 @@ def vm_exists(vmid):
 def customize_image(temp_dir, image_name):
     try:
         subprocess.check_call(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"])
+        subprocess.check_call(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"])
     except Exception as e:
         print("ERROR:", e)
 
