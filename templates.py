@@ -17,8 +17,14 @@ def vm_exists(vmid):
     except subprocess.CalledProcessError:
         return True
 
+def customize_image(temp_dir, image_name):
+    try:
+        subprocess.check_call(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"])
+        subprocess.check_call(["systemctl", "enable", "qemu-guest-agent"])
+    except Exception as e:
+        print("ERROR:", e)
+
 def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username):
-    print(f"Creating template {name} ({vmid})")
     commands = [
         ["qm", "create", vmid, "--name", name, "--ostype", "l26"],
         ["qm", "set", vmid, "--net0", "virtio,bridge=vmbr0"],
@@ -65,7 +71,7 @@ def main():
 
     disk_images = {
         "alma9.3": f"{template_vmids[0]}|https://repo.almalinux.org/almalinux/9.3/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2",
-        "ubuntu20.04": f"{template_vmids[1]}|https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-arm64.img",
+        "ubuntu20.04": f"{template_vmids[1]}|https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img",
         "debian12": f"{template_vmids[2]}|https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2"
     }
 
@@ -78,11 +84,16 @@ def main():
         if vm_exists(vmid):
             image_path = os.path.join(temp_dir, image_name)
             if not os.path.isfile(image_path):
-                print(f"Downloading disk image for {name} to {temp_dir}..")
+                print(f"[i] Downloading disk image for {name} to {temp_dir}..")
                 download_file(url, temp_dir, image_name)
             else:
-                print("Disk image exists")
+                print("[v] Disk image exists")
 
+            if "ubuntu" in name or "debian" in name:
+                print(f"[i] Customizing disk image for {name}..")
+                customize_image(temp_dir, image_name)
+
+            print(f"[i] Creating template {name} ({vmid})")
             create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username)
 
     os.remove(ssh_keyfile)
