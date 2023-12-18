@@ -1,1 +1,1 @@
-`wget -qO- https://raw.githubusercontent.com/fredrikscode/proxmox-scripts/main/create_templates | bash`
+`wget -qO- https://raw.githubusercontent.com/fredrikscode/proxmox-scripts/main/templates.py | python3 -`
