@@ -27,7 +27,7 @@ def customize_image(temp_dir, image_name):
 def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username):
     commands = [
         ["qm", "create", vmid, "--name", name, "--ostype", "l26"],
-        ["qm", "set", vmid, "--net0", "virtio,bridge=vmbr0"],
+        ["qm", "set", vmid, "--net0", "virtio,bridge=vmbr0,vlanid=10"],
         ["qm", "set", vmid, "--serial0", "socket", "--vga", "serial0"],
         ["qm", "set", vmid, "--memory", "2048", "--cores", "2", "--cpu", "host"],
         ["qm", "set", vmid, "--scsi0", f"{template_storage}:0,import-from={temp_dir}/{image_name},discard=on,ssd=1,iothread=1,cache=writeback"],
