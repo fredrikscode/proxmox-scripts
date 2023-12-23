@@ -31,7 +31,7 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
         ["qm", "set", vmid, "--serial0", "socket", "--vga", "serial0"],
         ["qm", "set", vmid, "--memory", "2048", "--cores", "2", "--cpu", "host"],
         ["qm", "set", vmid, "--scsi0", f"{template_storage}:0,import-from={temp_dir}/{image_name},discard=on,ssd=1,iothread=1,cache=writeback"],
-        ["qm", "set", vmid, "--boot", "c", "--scsihw", "virtio-scsi-single"],
+        ["qm", "set", vmid, "--boot", "scsi0", "--scsihw", "virtio-scsi-single"],
         ["qm", "set", vmid, "--tablet", "0"],
         ["qm", "set", vmid, "--agent", "enabled=1,fstrim_cloned_disks=1"],
         ["qm", "set", vmid, "--ide2", f"{template_storage}:cloudinit"],
