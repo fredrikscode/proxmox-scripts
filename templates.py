@@ -2,7 +2,48 @@ import os
 import socket
 import subprocess
 import requests
+import sys
 from tqdm import tqdm
+
+def check_prerequisites():
+    # Define a dictionary with prerequisites and their checking functions
+    prerequisites = {
+        "QEMU": check_qemu,
+        "Prerequisite 2": check_virt
+    }
+
+    all_passed = True
+
+    # Loop through the prerequisites
+    for item, check_function in prerequisites.items():
+        # Call the check function for each item
+        if check_function():
+            # If the check passes, display a green checkmark
+            print("\033[32m✅ {}\033[0m".format(item))
+        else:
+            # If the check fails, display a red cross
+            print("\033[31m❌ {}\033[0m".format(item))
+            all_passed = False
+
+    if not all_passed:
+        sys.exit(1)
+
+# Define your checking functions here
+def check_qemu():
+    # Replace this with your actual checking logic for Prerequisite 1
+    # Return True if the check passes, False if it fails
+    if subprocess.check_output(["qm", "--version"]):
+        return True
+    else:
+        return False
+
+def check_virt():
+    # Replace this with your actual checking logic for Prerequisite 2
+    # Return True if the check passes, False if it fails
+    if subprocess.check_output(["virt-customize", "--version"]):
+        return True
+    else:
+        return False
 
 def vm_exists(vmid):
     print(f"Checking if VMID {vmid} exists..")
@@ -54,6 +95,7 @@ def download_file(url, temp_dir, filename):
             file.write(data)
 
 def main():
+    check_prerequisites()
     temp_dir = "/tmp"
     ssh_keyfile = "/tmp/keys_internal_servers"
     username = "fredrik"
