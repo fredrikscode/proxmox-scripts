@@ -8,8 +8,7 @@ from tqdm import tqdm
 def check_prerequisites():
     # Define a dictionary with prerequisites and their checking functions
     prerequisites = {
-        "QEMU": check_qemu,
-        "Prerequisite 2": check_virt
+        "virt-customize": check_virt
     }
 
     all_passed = True
