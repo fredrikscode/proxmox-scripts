@@ -37,12 +37,13 @@ def check_virt():
 def check_and_delete_vm(vmid):
     try:
         if args.verbose:
-            subprocess.check_output(["qm", "status", vmid])
+            subprocess.run(["qm", "status", vmid])
         else:
-            subprocess.run(["qm", "status", vmid], stdout=subprocess.DEVNULL)
+            subprocess.run(["qm", "status", vmid], stdout=subprocess.DEVNULL, check=True)
+
             try:
                 if args.verbose:
-                    subprocess.check_call(["qm", "destroy", vmid])
+                    subprocess.run(["qm", "destroy", vmid])
                 else:
                     subprocess.run(["qm", "destroy", vmid], stdout=subprocess.DEVNULL, check=True)
                 return True
@@ -53,8 +54,8 @@ def check_and_delete_vm(vmid):
 
 def customize_image(temp_dir, image_name):
     try:
-        subprocess.check_call(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"])
-        subprocess.check_call(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"])
+        subprocess.run(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"], stdout=subprocess.DEVNULL, check=True)
+        subprocess.run(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"], stdout=subprocess.DEVNULL, check=True)
     except Exception as e:
         print("ERROR:", e)
 
