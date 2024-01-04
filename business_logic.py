@@ -100,10 +100,10 @@ def install_dependencies(verbose):
         logging.error("Failed to install dependencies")
         return False
 
-def check_and_delete_vm(vmid, verbose):
-    success_message = f"\033[32m✅ Removed {vmid}\033[0m"
-    failure_message = f"\033[31m❌ Error while removing {vmid}\033[0m"
-    spinner = Spinner(f"Checking if VM {vmid} exists and deleting it if it does", success_message, failure_message)
+def check_and_delete_vm(vmid, image_name, verbose):
+    success_message = f"\033[32m✅ Removed {image_name} [{vmid}]\033[0m"
+    failure_message = f"\033[31m❌ Error while removing {image_name} [{vmid}]\033[0m"
+    spinner = Spinner(f"Checking if template {image_name} exists and deleting it if it does", success_message, failure_message)
     spinner.start()
     try:
         run_command(["qm", "status", vmid], verbose)
@@ -120,7 +120,9 @@ def check_and_delete_vm(vmid, verbose):
         return False
     
 def customize_image(temp_dir, image_name, verbose):
-    spinner = Spinner(f"Customizing {image_name}")
+    success_message = f"\033[32m✅ Customized {image_name}\033[0m"
+    failure_message = f"\033[31m❌ Error while customizing {image_name}\033[0m"
+    spinner = Spinner(f"Customizing {image_name}", success_message, failure_message)
     try:
         spinner.start()
         run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"], verbose)
