@@ -120,9 +120,9 @@ def check_and_delete_vm(vmid, name, verbose):
         return False
     
 def customize_image(temp_dir, image_name, name, verbose):
-    success_message = f"\033[32m✅ Customized {name}\033[0m"
-    failure_message = f"\033[31m❌ Error while customizing {name}\033[0m"
-    spinner = Spinner(f"Customizing {name}", success_message, failure_message)
+    success_message = f"\033[32m✅ Customized image for {name}\033[0m"
+    failure_message = f"\033[31m❌ Error while customizing image for {name}\033[0m"
+    spinner = Spinner(f"Customizing image for {name}", success_message, failure_message)
     try:
         spinner.start()
         run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"], verbose)
