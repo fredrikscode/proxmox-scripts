@@ -62,13 +62,13 @@ def main():
         vmid, url = value.split('|')
         image_name = os.path.basename(url)
 
-        if check_and_delete_vm(vmid, image_name, args.verbose):
+        if check_and_delete_vm(vmid, name, args.verbose):
             image_path = os.path.join(temp_dir, image_name)
             if not os.path.isfile(image_path):
                 download_file(url, temp_dir, image_name, args.verbose)
 
             if "ubuntu" in name or "debian" in name:
-                customize_image(temp_dir, image_name, args.verbose)
+                customize_image(temp_dir, image_name, name, args.verbose)
 
             create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username, args.verbose)
 
