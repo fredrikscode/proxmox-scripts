@@ -153,13 +153,10 @@ def main():
             image_path = os.path.join(temp_dir, image_name)
             if not os.path.isfile(image_path):
                 download_file(url, temp_dir, image_name)
-            else:
-                print("[v] Disk image exists")
 
             if "ubuntu" in name or "debian" in name:
                 customize_image(temp_dir, image_name)
 
-            print(f"[i] Creating template {name} ({vmid})")
             if create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username):
                 print("\033[32m✅ Template created: {}\033[0m".format(name))
             else:
