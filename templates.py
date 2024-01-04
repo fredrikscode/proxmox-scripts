@@ -5,6 +5,7 @@ import requests
 import sys
 from tqdm import tqdm
 import argparse
+import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
@@ -36,18 +37,18 @@ def run_command(cmd, verbose):
         subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
 def check_virt():
-    if subprocess.check_output(["virt-customize", "--version"]):
+    try:
+        run_command(["virt-customize", "--version"])
         return True
-    else:
+    
+    except subprocess.CalledProcessError:
         return False
 
 def check_tqdm():
     try:
-        if args.verbose:
-            subprocess.run(["dpkg", "-s", "python3-tqdm"])
-        else:
-            subprocess.run(["dpkg", "-s", "python3-tqdm"], stdout=subprocess.DEVNULL, check=True)
+        run_command(["dpkg", "-s", "python3-tqdm"])
         return True
+    
     except subprocess.CalledProcessError:
         return False
 
@@ -65,8 +66,8 @@ def check_and_delete_vm(vmid):
 
 def customize_image(temp_dir, image_name):
     try:
-        subprocess.run(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"], stdout=subprocess.DEVNULL, check=True)
-        subprocess.run(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"], stdout=subprocess.DEVNULL, check=True)
+        run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"])
+        run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"])
     except Exception as e:
         print("ERROR:", e)
 
@@ -88,13 +89,8 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
             ["qm", "template", vmid]
         ]
 
-        if args.verbose:
-            for cmd in commands:
-                subprocess.check_call(cmd)
-        else:
-            for cmd in commands:
-                subprocess.check_call(cmd, stdout=subprocess.DEVNULL)
-
+        for cmd in commands:
+            run_command(cmd)
         return True
     
     except Exception as e:
