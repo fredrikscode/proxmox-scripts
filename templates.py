@@ -11,7 +11,7 @@ parser.add_argument("-v", "--verbose", help="Increase output verbosity", action=
 args = parser.parse_args()
 
 def check_prerequisites():
-    # Define a dictionary with prerequisites and their checking functions
+    print("Checking prerequisites..")
     prerequisites = {
         "virt-customize": check_virt,
         "python3-tqdm": check_tqdm
