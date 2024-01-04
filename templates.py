@@ -38,13 +38,13 @@ def check_virt():
 def check_tqdm():
     try:
         if args.verbose:
-            if subprocess.run(["import", "tqdm"]):
-                return True
+            subprocess.run(["dpkg", "-s", "python3-tqdm"])
         else:
-            if subprocess.run(["import", "tqdm"], stdout=subprocess.DEVNULL):
-                return True
-    except ImportError:
+            subprocess.run(["import", "tqdm"], stdout=subprocess.DEVNULL)
+        return True
+    except subprocess.CalledProcessError:
         return False
+
 
 def check_and_delete_vm(vmid):
     try:
