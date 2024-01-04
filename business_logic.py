@@ -82,11 +82,11 @@ def check_and_delete_vm(vmid, verbose):
 def customize_image(temp_dir, image_name, verbose):
     try:
         run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"], verbose)
-        logging.info("Added qemu-guest-agent installation on first boot to image")
+        logging.info(f"Added qemu-guest-agent installation on first boot in {image_name}")
         run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"], verbose)
-        logging.info("Enabled qemu-guest-agent on first boot")
+        logging.info(f"Enabled qemu-guest-agent on first boot in {image_name}")
     except Exception as e:
-        logging.error("Failed to customize image")
+        logging.error(f"Failed to customize {image_name}")
         print("ERROR:", e)
 
 def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username, verbose):
