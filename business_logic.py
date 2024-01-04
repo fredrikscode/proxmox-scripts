@@ -14,25 +14,32 @@ logHandler = RotatingFileHandler('pve-templates.log', maxBytes=10000000, backupC
 logHandler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
 class Spinner:
-    def __init__(self, message, delay=0.1):
+    def __init__(self, message, success_message="", failure_message="", delay=0.1):
         self.spinner = itertools.cycle(['-', '/', '|', '\\'])
         self.message = message
+        self.success_message = success_message
+        self.failure_message = failure_message
         self.delay = delay
         self.stop_running = threading.Event()
         self.spin_thread = threading.Thread(target=self.initiate_spin)
+        self.success = None
 
     def initiate_spin(self):
         while not self.stop_running.is_set():
-            print(f"\r{self.message} {next(self.spinner)}", flush=True, end='')
+            sys.stdout.write(f"\r{self.message} {next(self.spinner)}")
+            sys.stdout.flush()
             time.sleep(self.delay)
 
     def start(self):
         self.spin_thread.start()
 
-    def stop(self):
+    def stop(self, success=True):
+        self.success = success
         self.stop_running.set()
         self.spin_thread.join()
-        print(f"\r{self.message} Done.")
+        final_message = self.success_message if success else self.failure_message
+        sys.stdout.write(f"\r{final_message}\n")
+        sys.stdout.flush()
 
 def runas_root():
     if os.geteuid() != 0:
@@ -93,7 +100,9 @@ def install_dependencies(verbose):
         return False
 
 def check_and_delete_vm(vmid, verbose):
-    spinner = Spinner(f"Checking if VM {vmid} exists and deleting it if it does")
+    success_message = f"\033[32m✅ Removed {vmid}\033[0m"
+    failure_message = f"\033[31m❌ Error while removing {vmid}\033[0m"
+    spinner = Spinner(f"Checking if VM {vmid} exists and deleting it if it does", success_message, failure_message)
     spinner.start()
     try:
         run_command(["qm", "status", vmid], verbose)
