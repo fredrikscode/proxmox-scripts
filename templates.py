@@ -4,6 +4,11 @@ import subprocess
 import requests
 import sys
 from tqdm import tqdm
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbose", help="Increase output verbosity", action="store_true")
+args = parser.parse_args()
 
 def check_prerequisites():
     # Define a dictionary with prerequisites and their checking functions
@@ -71,8 +76,13 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
             ["qm", "template", vmid]
         ]
 
-        for cmd in commands:
-            subprocess.check_call(cmd)
+        if args.verbose:
+            for cmd in commands:
+                subprocess.check_call(cmd)
+        else:
+            for cmd in commands:
+                subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                
         return True
     
     except Exception as e:
