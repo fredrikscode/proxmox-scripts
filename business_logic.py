@@ -101,8 +101,8 @@ def install_dependencies(verbose):
         return False
 
 def check_and_delete_vm(vmid, name, verbose):
-    success_message = f"\033[32m✅ Removed {name} [{vmid}]\033[0m"
-    failure_message = f"\033[31m❌ Error while removing {name} [{vmid}]\033[0m"
+    success_message = f"\033[32m✅ Removed template {name} [{vmid}]\033[0m"
+    failure_message = f"\033[31m❌ Error while removing template {name} [{vmid}]\033[0m"
     spinner = Spinner(f"Checking if template {name} exists and deleting it if it does", success_message, failure_message)
     spinner.start()
     try:
