@@ -38,7 +38,7 @@ def run_command(cmd, verbose):
 
 def check_virt():
     try:
-        run_command(["virt-customize", "--version"])
+        run_command(["virt-customize", "--version"], args.verbose)
         return True
     
     except subprocess.CalledProcessError:
@@ -46,7 +46,7 @@ def check_virt():
 
 def check_tqdm():
     try:
-        run_command(["dpkg", "-s", "python3-tqdm"])
+        run_command(["dpkg", "-s", "python3-tqdm"], args.verbose)
         return True
     
     except subprocess.CalledProcessError:
@@ -66,8 +66,8 @@ def check_and_delete_vm(vmid):
 
 def customize_image(temp_dir, image_name):
     try:
-        run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"])
-        run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"])
+        run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"], args.verbose)
+        run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"], args.verbose)
     except Exception as e:
         print("ERROR:", e)
 
@@ -90,7 +90,7 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
         ]
 
         for cmd in commands:
-            run_command(cmd)
+            run_command(cmd, args.verbose)
         return True
     
     except Exception as e:
