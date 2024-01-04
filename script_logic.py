@@ -70,10 +70,7 @@ def main():
             if "ubuntu" in name or "debian" in name:
                 customize_image(temp_dir, image_name, args.verbose)
 
-            if create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username, args.verbose):
-                print(f"\033[32m✅ Template created: {name}\033[0m")
-            else:
-                print(f"\033[31m❌ Template Creation Failed: {name}\033[0m")
+            create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username, args.verbose)
 
     os.remove(ssh_keyfile)
 
