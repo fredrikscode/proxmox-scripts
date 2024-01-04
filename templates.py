@@ -40,11 +40,10 @@ def check_tqdm():
         if args.verbose:
             subprocess.run(["dpkg", "-s", "python3-tqdm"])
         else:
-            subprocess.run(["import", "tqdm"], stdout=subprocess.DEVNULL)
+            subprocess.run(["dpkg", "-s", "python3-tqdm"], stdout=subprocess.DEVNULL, check=True)
         return True
     except subprocess.CalledProcessError:
         return False
-
 
 def check_and_delete_vm(vmid):
     try:
