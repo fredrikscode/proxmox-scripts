@@ -134,7 +134,9 @@ def customize_image(temp_dir, image_name, verbose):
         spinner.stop()
 
 def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username, verbose):
-    spinner = Spinner(f"Creating template {name}")
+    success_message = f"\033[32m✅ Created template {name}\033[0m"
+    failure_message = f"\033[31m❌ Error while creating template {name}\033[0m"
+    spinner = Spinner(f"Trying to create template {name}", success_message, failure_message)
     try:
         spinner.start()
         commands = [
