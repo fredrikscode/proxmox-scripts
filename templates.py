@@ -42,14 +42,14 @@ def vm_exists(vmid):
     print(f"Checking if VMID {vmid} exists..")
     try:
         if args.verbose:
-            subprocess.check_output(["qm", "status", vmid], stderr=subprocess.DEVNULL)
+            subprocess.check_output(["qm", "status", vmid])
         else:
-            subprocess.check_output(["qm", "status", vmid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(["qm", "status", vmid], stdout=subprocess.DEVNULL)
             try:
                 if args.verbose:
                     subprocess.check_call(["qm", "destroy", vmid])
                 else:
-                    subprocess.check_call(["qm", "destroy", vmid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    subprocess.run(["qm", "destroy", vmid], stdout=subprocess.DEVNULL, check=True)
                 return True
             except subprocess.CalledProcessError:
                 return False
@@ -86,7 +86,7 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
                 subprocess.check_call(cmd)
         else:
             for cmd in commands:
-                subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.check_call(cmd, stdout=subprocess.DEVNULL)
 
         return True
     
