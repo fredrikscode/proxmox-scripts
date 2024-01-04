@@ -38,7 +38,8 @@ class Spinner:
         self.stop_running.set()
         self.spin_thread.join()
         final_message = self.success_message if success else self.failure_message
-        sys.stdout.write(f"\r{final_message}\n")
+        sys.stdout.write('\r' + ' ' * (len(self.message) + 2) + '\r')  # Clear the line
+        sys.stdout.write(f"{final_message}\n")
         sys.stdout.flush()
 
 def runas_root():
