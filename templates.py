@@ -41,13 +41,18 @@ def check_virt():
 def vm_exists(vmid):
     print(f"Checking if VMID {vmid} exists..")
     try:
-        subprocess.check_output(["qm", "status", vmid], stderr=subprocess.DEVNULL)
-        print("VMID already exists. Proceeding to delete..")
-        try:
-            subprocess.check_call(["qm", "destroy", vmid])
-            return True
-        except subprocess.CalledProcessError:
-            return False
+        if args.verbose:
+            subprocess.check_output(["qm", "status", vmid], stderr=subprocess.DEVNULL)
+        else:
+            subprocess.check_output(["qm", "status", vmid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            try:
+                if args.verbose:
+                    subprocess.check_call(["qm", "destroy", vmid])
+                else:
+                    subprocess.check_call(["qm", "destroy", vmid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return True
+            except subprocess.CalledProcessError:
+                return False
     except subprocess.CalledProcessError:
         return True
 
@@ -82,7 +87,7 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
         else:
             for cmd in commands:
                 subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                
+
         return True
     
     except Exception as e:
