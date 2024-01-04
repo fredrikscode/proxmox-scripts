@@ -29,6 +29,12 @@ def check_prerequisites():
     if not all_passed:
         sys.exit(1)
 
+def run_command(cmd, verbose):
+    if verbose:
+        subprocess.run(cmd, check=True)
+    else:
+        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+
 def check_virt():
     if subprocess.check_output(["virt-customize", "--version"]):
         return True
@@ -47,21 +53,15 @@ def check_tqdm():
 
 def check_and_delete_vm(vmid):
     try:
-        if args.verbose:
-            subprocess.run(["qm", "status", vmid])
-        else:
-            subprocess.run(["qm", "status", vmid], stdout=subprocess.DEVNULL, check=True)
-
-            try:
-                if args.verbose:
-                    subprocess.run(["qm", "destroy", vmid])
-                else:
-                    subprocess.run(["qm", "destroy", vmid], stdout=subprocess.DEVNULL, check=True)
-                return True
-            except subprocess.CalledProcessError:
-                return False
+        run_command(["qm", "status", vmid], args.verbose)
     except subprocess.CalledProcessError:
         return True
+
+    try:
+        run_command(["qm", "destroy", vmid], args.verbose)
+        return True
+    except subprocess.CalledProcessError:
+        return False
 
 def customize_image(temp_dir, image_name):
     try:
