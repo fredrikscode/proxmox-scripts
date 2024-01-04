@@ -13,7 +13,8 @@ args = parser.parse_args()
 def check_prerequisites():
     # Define a dictionary with prerequisites and their checking functions
     prerequisites = {
-        "virt-customize": check_virt
+        "virt-customize": check_virt,
+        "python3-tqdm": check_tqdm
     }
 
     all_passed = True
@@ -32,6 +33,17 @@ def check_virt():
     if subprocess.check_output(["virt-customize", "--version"]):
         return True
     else:
+        return False
+
+def check_tqdm():
+    try:
+        if args.verbose:
+            if subprocess.run(["import", "tqdm"]):
+                return True
+        else:
+            if subprocess.run(["import", "tqdm"], stdout=subprocess.DEVNULL):
+                return True
+    except ImportError:
         return False
 
 def check_and_delete_vm(vmid):
@@ -140,13 +152,11 @@ def main():
         if check_and_delete_vm(vmid):
             image_path = os.path.join(temp_dir, image_name)
             if not os.path.isfile(image_path):
-                print(f"[i] Downloading disk image for {name} to {temp_dir}..")
                 download_file(url, temp_dir, image_name)
             else:
                 print("[v] Disk image exists")
 
             if "ubuntu" in name or "debian" in name:
-                print(f"[i] Customizing disk image for {name}..")
                 customize_image(temp_dir, image_name)
 
             print(f"[i] Creating template {name} ({vmid})")
