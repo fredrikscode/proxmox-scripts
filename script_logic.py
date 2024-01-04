@@ -62,7 +62,7 @@ def main():
         vmid, url = value.split('|')
         image_name = os.path.basename(url)
 
-        if check_and_delete_vm(vmid):
+        if check_and_delete_vm(vmid, args.verbose):
             image_path = os.path.join(temp_dir, image_name)
             if not os.path.isfile(image_path):
                 download_file(url, temp_dir, image_name, args.verbose)
