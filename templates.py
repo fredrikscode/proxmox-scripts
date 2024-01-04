@@ -18,14 +18,10 @@ def check_prerequisites():
 
     all_passed = True
 
-    # Loop through the prerequisites
     for item, check_function in prerequisites.items():
-        # Call the check function for each item
         if check_function():
-            # If the check passes, display a green checkmark
             print("\033[32m✅ {}\033[0m".format(item))
         else:
-            # If the check fails, display a red cross
             print("\033[31m❌ {}\033[0m".format(item))
             all_passed = False
 
@@ -38,8 +34,7 @@ def check_virt():
     else:
         return False
 
-def vm_exists(vmid):
-    print(f"Checking if VMID {vmid} exists..")
+def check_and_delete_vm(vmid):
     try:
         if args.verbose:
             subprocess.check_output(["qm", "status", vmid])
@@ -95,14 +90,22 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
         return False 
 
 def download_file(url, temp_dir, filename):
-    response = requests.get(url, stream=True)
-    total_size = int(response.headers.get('content-length', 0))
-    block_size = 1024
-    temp_file_path = os.path.join(temp_dir, filename)
-    with open(temp_file_path, 'wb') as file, tqdm(total=total_size, unit='iB', unit_scale=True) as bar:
-        for data in response.iter_content(block_size):
-            bar.update(len(data))
-            file.write(data)
+    if args.verbose:
+        response = requests.get(url, stream=True)
+        total_size = int(response.headers.get('content-length', 0))
+        block_size = 1024
+        temp_file_path = os.path.join(temp_dir, filename)
+        with open(temp_file_path, 'wb') as file, tqdm(total=total_size, unit='iB', unit_scale=True) as bar:
+            for data in response.iter_content(block_size):
+                bar.update(len(data))
+                file.write(data)
+    else:
+            response = requests.get(url, stream=True)
+            temp_file_path = os.path.join(temp_dir, filename)
+            with open(temp_file_path, 'wb') as file:
+                for data in response.iter_content(1024):
+                    file.write(data)
+            print("\033[32m✅ Finished downloading: {}\033[0m".format(filename))
 
 def main():
     check_prerequisites()
@@ -133,7 +136,7 @@ def main():
         vmid, url = value.split('|')
         image_name = os.path.basename(url)
 
-        if vm_exists(vmid):
+        if check_and_delete_vm(vmid):
             image_path = os.path.join(temp_dir, image_name)
             if not os.path.isfile(image_path):
                 print(f"[i] Downloading disk image for {name} to {temp_dir}..")
