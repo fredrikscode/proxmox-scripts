@@ -5,10 +5,34 @@ import subprocess
 import requests
 import logging
 from logging.handlers import RotatingFileHandler
+import itertools
+import threading
+import time
 
 logging.basicConfig(filename='pve-templates.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logHandler = RotatingFileHandler('pve-templates.log', maxBytes=10000000, backupCount=3)
 logHandler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+class Spinner:
+    def __init__(self, message, delay=0.1):
+        self.spinner = itertools.cycle(['-', '/', '|', '\\'])
+        self.message = message
+        self.delay = delay
+        self.stop_running = threading.Event()
+        self.spin_thread = threading.Thread(target=self.initiate_spin)
+
+    def initiate_spin(self):
+        while not self.stop_running.is_set():
+            print(f"\r{self.message} {next(self.spinner)}", flush=True, end='')
+            time.sleep(self.delay)
+
+    def start(self):
+        self.spin_thread.start()
+
+    def stop(self):
+        self.stop_running.set()
+        self.spin_thread.join()
+        print(f"\r{self.message} Done.")
 
 def runas_root():
     if os.geteuid() != 0:
@@ -58,6 +82,7 @@ def check_tqdm(verbose):
             print("\033[32m✅ python3-tqdm is installed\033[0m")
         else:
             print("\033[31m❌ python3-tqdm is not installed\033[0m")
+
 def install_dependencies(verbose):
     try:
         run_command(["apt", "install", "-y", "python3-tqdm", "libguestfs-tools"], verbose)
@@ -68,19 +93,26 @@ def install_dependencies(verbose):
         return False
 
 def check_and_delete_vm(vmid, verbose):
+    spinner = Spinner(f"Checking if VM {vmid} exists and deleting it if it does")
+    spinner.start()
     try:
         run_command(["qm", "status", vmid], verbose)
     except subprocess.CalledProcessError:
+        spinner.stop()
         return True
 
     try:
         run_command(["qm", "destroy", vmid], verbose)
+        spinner.stop()
         return True
     except subprocess.CalledProcessError:
+        spinner.stop()
         return False
     
 def customize_image(temp_dir, image_name, verbose):
+    spinner = Spinner(f"Customizing {image_name}")
     try:
+        spinner.start()
         run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"], verbose)
         logging.info(f"Added qemu-guest-agent installation on first boot in {image_name}")
         run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"], verbose)
@@ -88,9 +120,13 @@ def customize_image(temp_dir, image_name, verbose):
     except Exception as e:
         logging.error(f"Failed to customize {image_name}")
         print("ERROR:", e)
+    finally:
+        spinner.stop()
 
 def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username, verbose):
+    spinner = Spinner(f"Creating template {name}")
     try:
+        spinner.start()
         commands = [
             ["qm", "create", vmid, "--name", name, "--ostype", "l26"],
             ["qm", "set", vmid, "--net0", "virtio,bridge=vmbr0,tag=10"],
@@ -113,8 +149,12 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
         return True
     
     except Exception as e:
+        spinner.stop()
         logging.error("Failed to configure the VM")
         return False
+    
+    finally:
+        spinner.stop()
     
 def download_file(url, temp_dir, filename, verbose):
     if verbose:
