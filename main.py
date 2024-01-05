@@ -4,7 +4,7 @@ import os
 import socket
 from functions import (
     load_config, runas_root, check_os, check_virt, check_tqdm, install_dependencies, check_and_delete_vm,
-    customize_image, create_template, download_file
+    customize_image, create_template, download_file, remove_file
 )
 
 def parse_arguments():
@@ -75,7 +75,7 @@ def main():
 
             create_template(vmid, name, image_name, template_storage, temporary_directory, ssh_pubkeys_file, username, args.verbose)
 
-    os.remove(ssh_pubkeys_file)
+    remove_file(temporary_directory)
 
 if __name__ == "__main__":
     main()
