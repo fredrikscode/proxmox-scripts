@@ -8,6 +8,7 @@ from logging.handlers import RotatingFileHandler
 import itertools
 import threading
 import time
+import configparser
 
 logging.basicConfig(filename='pve-templates.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logHandler = RotatingFileHandler('pve-templates.log', maxBytes=10000000, backupCount=3)
@@ -41,6 +42,11 @@ class Spinner:
         sys.stdout.write('\r' + ' ' * (len(self.message) + 2) + '\r')  # Clear the line
         sys.stdout.write(f"{final_message}\n")
         sys.stdout.flush()
+
+def load_config(config_path='config.ini'):
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    return config
 
 def runas_root():
     if os.geteuid() != 0:
