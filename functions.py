@@ -14,8 +14,6 @@ logging.basicConfig(filename='pve-templates.log', level=logging.INFO, format='%(
 logHandler = RotatingFileHandler('pve-templates.log', maxBytes=10000000, backupCount=3)
 logHandler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
-config = load_config()
-
 class Spinner:
     def __init__(self, message, success_message="", failure_message="", delay=0.1):
         self.spinner = itertools.cycle(['-', '/', '|', '\\'])
