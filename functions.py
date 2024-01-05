@@ -14,6 +14,8 @@ logging.basicConfig(filename='pve-templates.log', level=logging.INFO, format='%(
 logHandler = RotatingFileHandler('pve-templates.log', maxBytes=10000000, backupCount=3)
 logHandler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
+config = load_config()
+
 class Spinner:
     def __init__(self, message, success_message="", failure_message="", delay=0.1):
         self.spinner = itertools.cycle(['-', '/', '|', '\\'])
@@ -125,15 +127,15 @@ def check_and_delete_vm(vmid, name, verbose):
         spinner.stop()
         return False
     
-def customize_image(temp_dir, image_name, name, verbose):
+def customize_image(temporary_directory, image_name, name, verbose):
     success_message = f"\033[32m✅ Customized image for {name}\033[0m"
     failure_message = f"\033[31m❌ Error while customizing image for {name}\033[0m"
     spinner = Spinner(f"Customizing image for {name}", success_message, failure_message)
     try:
         spinner.start()
-        run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-install", "qemu-guest-agent"], verbose)
+        run_command(["virt-customize", "-a", f"{temporary_directory}/{image_name}", "--firstboot-install", "qemu-guest-agent"], verbose)
         logging.info(f"Added qemu-guest-agent installation on first boot in {image_name}")
-        run_command(["virt-customize", "-a", f"{temp_dir}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"], verbose)
+        run_command(["virt-customize", "-a", f"{temporary_directory}/{image_name}", "--firstboot-command", "systemctl enable --now qemu-guest-agent"], verbose)
         logging.info(f"Enabled qemu-guest-agent on first boot in {image_name}")
     except Exception as e:
         logging.error(f"Failed to customize {image_name}")
@@ -141,7 +143,7 @@ def customize_image(temp_dir, image_name, name, verbose):
     finally:
         spinner.stop()
 
-def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyfile, username, verbose):
+def create_template(vmid, name, image_name, template_storage, temporary_directory, ssh_keyfile, username, verbose):
     success_message = f"\033[32m✅ Created template {name}\033[0m"
     failure_message = f"\033[31m❌ Error while creating template {name}\033[0m"
     spinner = Spinner(f"Trying to create template {name}", success_message, failure_message)
@@ -152,7 +154,7 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
             ["qm", "set", vmid, "--net0", "virtio,bridge=vmbr0,tag=10"],
             ["qm", "set", vmid, "--serial0", "socket", "--vga", "serial0"],
             ["qm", "set", vmid, "--memory", "2048", "--cores", "2", "--cpu", "host"],
-            ["qm", "set", vmid, "--scsi0", f"{template_storage}:0,import-from={temp_dir}/{image_name},discard=on"],
+            ["qm", "set", vmid, "--scsi0", f"{template_storage}:0,import-from={temporary_directory}/{image_name},discard=on"],
             ["qm", "set", vmid, "--boot", "order=scsi0", "--scsihw", "virtio-scsi-single"],
             ["qm", "set", vmid, "--tablet", "0"],
             ["qm", "set", vmid, "--agent", "enabled=1,fstrim_cloned_disks=1"],
@@ -176,19 +178,19 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
     finally:
         spinner.stop()
     
-def download_file(url, temp_dir, filename, verbose):
+def download_file(url, temporary_directory, filename, verbose):
     if verbose:
         response = requests.get(url, stream=True)
         total_size = int(response.headers.get('content-length', 0))
         block_size = 1024
-        temp_file_path = os.path.join(temp_dir, filename)
+        temp_file_path = os.path.join(temporary_directory, filename)
         with open(temp_file_path, 'wb') as file, tqdm(total=total_size, unit='iB', unit_scale=True) as bar:
             for data in response.iter_content(block_size):
                 bar.update(len(data))
                 file.write(data)
     else:
             response = requests.get(url, stream=True)
-            temp_file_path = os.path.join(temp_dir, filename)
+            temp_file_path = os.path.join(temporary_directory, filename)
             with open(temp_file_path, 'wb') as file:
                 for data in response.iter_content(1024):
                     file.write(data)
