@@ -18,7 +18,7 @@ def main():
 
     config = load_config()
     temporary_directory = config.get('default', 'temporary_directory', fallback='/tmp/')
-    ssh_pubkeys_file = temporary_directory + config.get('default', 'ssh_pubkeys_file', fallback='ssh_pubkeys')
+    ssh_pubkeys_file = config.get('default', 'ssh_pubkeys_file')
     username = "fredrik"
     hostname = socket.gethostname()
 
@@ -59,7 +59,7 @@ def main():
         "debian12": f"{template_vmids[2]}|https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2"
     }
 
-    download_file("https://raw.githubusercontent.com/fredrikscode/ssh-keys/main/internal_servers", temporary_directory, ssh_pubkeys_file, args.verbose)
+    download_file(url=ssh_pubkeys_file, verbose=args.verbose)
 
     for name, value in disk_images.items():
         vmid, url = value.split('|')

@@ -14,6 +14,8 @@ logging.basicConfig(filename='pve-templates.log', level=logging.INFO, format='%(
 logHandler = RotatingFileHandler('pve-templates.log', maxBytes=10000000, backupCount=3)
 logHandler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
+config = load_config()
+
 class Spinner:
     def __init__(self, message, success_message="", failure_message="", delay=0.1):
         self.spinner = itertools.cycle(['-', '/', '|', '\\'])
@@ -176,20 +178,20 @@ def create_template(vmid, name, image_name, template_storage, temporary_director
     finally:
         spinner.stop()
     
-def download_file(url, temporary_directory, filename, verbose):
+def download_file(url, verbose):
+    temporary_directory = config.get('DEFAULT', 'temporary_directory')
     if verbose:
         response = requests.get(url, stream=True)
         total_size = int(response.headers.get('content-length', 0))
         block_size = 1024
-        temp_file_path = os.path.join(temporary_directory, filename)
-        with open(temp_file_path, 'wb') as file, tqdm(total=total_size, unit='iB', unit_scale=True) as bar:
+        filename = os.path.basename(url)
+        with open(os.path.join(temporary_directory, filename), 'wb') as file, tqdm(total=total_size, unit='iB', unit_scale=True) as bar:
             for data in response.iter_content(block_size):
                 bar.update(len(data))
                 file.write(data)
     else:
             response = requests.get(url, stream=True)
-            temp_file_path = os.path.join(temporary_directory, filename)
-            with open(temp_file_path, 'wb') as file:
+            with open(os.path.join(temporary_directory, filename), 'wb') as file:
                 for data in response.iter_content(1024):
                     file.write(data)
             print("\033[32m✅ Finished downloading: {}\033[0m".format(filename))
