@@ -14,7 +14,10 @@ def main():
     temporary_directory = config.get('default', 'temporary_directory', fallback='/tmp/')
     ssh_pubkeys_url = config.get('default', 'ssh_pubkeys_url')
     ssh_pubkeys_file = temporary_directory + ssh_pubkeys_url
-    disk_images = config.get('diskimages')
+    disk_images = {}
+    if 'diskimages' in config.sections():
+        for key, value in config.items('diskimages'):
+            disk_images[key] = value
     hostname = socket.gethostname()
 
     # This is a bit ugly but is the current way to deal with hosts having different storage configurations for vm disks
