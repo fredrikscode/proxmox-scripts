@@ -179,11 +179,11 @@ def create_template(vmid, name, image_name, template_storage, temporary_director
 def download_file(url, verbose):
     config = load_config()
     temporary_directory = config.get('default', 'temporary_directory')
+    filename = os.path.basename(url)
     if verbose:
         response = requests.get(url, stream=True)
         total_size = int(response.headers.get('content-length', 0))
         block_size = 1024
-        filename = os.path.basename(url)
         with open(os.path.join(temporary_directory, filename), 'wb') as file, tqdm(total=total_size, unit='iB', unit_scale=True) as bar:
             for data in response.iter_content(block_size):
                 bar.update(len(data))
