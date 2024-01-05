@@ -2,7 +2,7 @@ import argparse
 import sys
 import os
 import socket
-from business_logic import (
+from functions import (
     runas_root, check_os, check_virt, check_tqdm, install_dependencies, check_and_delete_vm,
     customize_image, create_template, download_file
 )
