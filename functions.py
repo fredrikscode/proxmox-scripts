@@ -97,6 +97,14 @@ def check_tqdm(verbose):
         else:
             print("\033[31m❌ python3-tqdm is not installed\033[0m")
 
+def remove_file(path, filename, verbose):
+    try:
+        os.remove(os.path.join(path, filename))
+        logging.info(f"Removed {filename} from {path}")
+
+    except FileNotFoundError:
+        print(f"\033[31m❌ {filename} not found in {path}\033[0m")
+
 def install_dependencies(verbose):
     try:
         run_command(["apt", "install", "-y", "python3-tqdm", "libguestfs-tools"], verbose)
