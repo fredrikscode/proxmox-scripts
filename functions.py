@@ -178,7 +178,7 @@ def create_template(vmid, name, image_name, template_storage, temporary_director
     
 def download_file(url, verbose):
     config = load_config()
-    temporary_directory = config.get('DEFAULT', 'temporary_directory')
+    temporary_directory = config.get('default', 'temporary_directory')
     if verbose:
         response = requests.get(url, stream=True)
         total_size = int(response.headers.get('content-length', 0))
