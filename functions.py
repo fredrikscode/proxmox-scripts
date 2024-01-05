@@ -193,19 +193,17 @@ def create_template(vmid, name, image_name, template_storage, temporary_director
         spinner.stop()
     
 def download_file(url):
-    config = load_config()
-    temporary_directory = config.get('default', 'temporary_directory')
-    filename = os.path.basename(url)
-    # response = requests.get(url, stream=True)
-    # total_size = int(response.headers.get('content-length', 0))
-    # block_size = 1024
-    # with open(os.path.join(temporary_directory, filename), 'wb') as file, tqdm(total=total_size, unit='iB', unit_scale=True) as bar:
-    #     for data in response.iter_content(block_size):
-    #         bar.update(len(data))
-    #         file.write(data)
-    logging.debug(f"Trying to download {url} to {os.path.join(temporary_directory, filename)}")
-    response = requests.get(url, stream=True)
-    with open(os.path.join(temporary_directory, filename), 'wb') as file:
-        for data in response.iter_content(1024):
-            file.write(data)
-    print("\033[32m✅ Finished downloading: {}\033[0m".format(filename))
+    try:
+        config = load_config()
+        temporary_directory = config.get('default', 'temporary_directory')
+        filename = os.path.basename(url)
+        logging.debug(f"Trying to download {url} to {os.path.join(temporary_directory, filename)}")
+        response = requests.get(url, stream=True)
+        with open(os.path.join(temporary_directory, filename), 'wb') as file:
+            for data in response.iter_content(1024):
+                file.write(data)
+        print("\033[32m✅ Finished downloading: {}\033[0m".format(filename))
+        return True  # Success
+    except Exception as e:
+        print(f"Could not download {url}: {str(e)}")
+        return False  # Failure
