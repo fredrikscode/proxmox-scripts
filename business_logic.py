@@ -159,12 +159,12 @@ def create_template(vmid, name, image_name, template_storage, temp_dir, ssh_keyf
 
         for cmd in commands:
             run_command(cmd, verbose)
-        logging.info("Successfully configured the VM")
+        logging.info(f"Successfully created template {name} [{vmid}]")
         return True
     
     except Exception as e:
         spinner.stop()
-        logging.error("Failed to configure the VM")
+        logging.error(f"Failed to configure or create template {name} [{vmid}]")
         return False
     
     finally:
