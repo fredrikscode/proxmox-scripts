@@ -178,7 +178,7 @@ def create_template(vmid, name, image_name, template_storage, temporary_director
     
     except Exception as e:
         spinner.stop()
-        logging.error(f"Failed to configure or create template {name} [{vmid}]")
+        logging.error(f"Failed to configure or create template {name} [{vmid}]: {e}")
         return False
     
     finally:
