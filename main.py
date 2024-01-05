@@ -22,6 +22,7 @@ def main():
     username = "fredrik"
     hostname = socket.gethostname()
 
+    print(f"DEBUG: {hostname}")
     # This is a bit ugly but is the current way to deal with hosts having different storage configurations for vm disks
     if hostname not in config:
         print(f"Configuration for hostname '{hostname}' not found.\nYou need to add it to the config file.\n\nExample:\n\n[FQDN]\ntemplate_storage = local-lvm\ntemplate_vmids = 1000,1001,1002\n")
