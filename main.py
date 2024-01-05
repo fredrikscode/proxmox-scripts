@@ -39,7 +39,9 @@ def main():
         print(f"Configuration for hostname '{hostname}' not found.")
         sys.exit(1)
 
-    download_file(url=ssh_pubkeys_url)
+    if not download_file(url=ssh_pubkeys_url):
+        print(f"Could not download ssh pubkeys from {ssh_pubkeys_url}")
+        sys.exit(1)
 
     for name, value in disk_images.items():
         vmid, url = value.split('|')
@@ -48,14 +50,22 @@ def main():
         if check_and_delete_vm(vmid, name, ):
             image_path = os.path.join(temporary_directory, image_name)
             if not os.path.isfile(image_path):
-                download_file(url, temporary_directory, image_name)
+                if not download_file(url, temporary_directory, image_name):
+                    print(f"Could not download {url} to {temporary_directory}")
+                    sys.exit(1)
 
             if "ubuntu" in name or "debian" in name:
-                customize_image(temporary_directory, image_name, name)
+                if not customize_image(temporary_directory, image_name, name):
+                    print(f"Could not customize image {name}")
+                    sys.exit(1)
 
-            create_template(vmid, name, image_name, template_storage, temporary_directory, ssh_pubkeys_file, cloudinit_user)
+            if not create_template(vmid, name, image_name, template_storage, temporary_directory, ssh_pubkeys_file, cloudinit_user):
+                print(f"Could not create template {name}")
+                sys.exit(1)
 
-    remove_file(temporary_directory)
+    if not remove_file(temporary_directory):
+        print(f"Could not remove {temporary_directory}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
