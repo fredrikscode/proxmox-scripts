@@ -6,8 +6,6 @@ from functions import (
     customize_image, create_template, download_file, remove_file
 )
 
-
-
 def main():
 
     config = load_config()
